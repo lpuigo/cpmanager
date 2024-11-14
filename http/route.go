@@ -8,6 +8,7 @@ import (
 
 func (s *Server) setupRoutes() {
 
+	//TODO use compress middleware github.com/klauspost/compress
 	s.mux.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir(s.config.Dir_Images))))
 
 	s.mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {

@@ -8,7 +8,7 @@ import (
 
 func (s *Server) setupRoutes() {
 
-	s.mux.Handle("/image/", http.StripPrefix("/image/", http.FileServer(http.Dir(s.config.Dir_Images))))
+	s.mux.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir(s.config.Dir_Images))))
 
 	s.mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		s.log.Log(r.Context(), slog.LevelInfo, "Get root")

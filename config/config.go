@@ -6,6 +6,6 @@ type Config struct {
 
 func Set() *Config {
 	return &Config{
-		Dir_Images: "dist/image",
+		Dir_Images: "dist/images",
 	}
 }

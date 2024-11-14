@@ -12,6 +12,7 @@ func Page(title string, children ...g.Node) g.Node {
 		Description: "une description",
 		Language:    "fr",
 		Head: []g.Node{
+			gh.Link(gh.Rel("icon"), gh.Type("image/png"), gh.Href("/images/logo_coul.png")),
 			gh.Script(gh.Src("script/script.js")),
 		},
 		Body: []g.Node{

@@ -10,6 +10,8 @@ func (s *Server) setupRoutes() {
 
 	//TODO use compress middleware github.com/klauspost/compress
 	s.mux.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir(s.config.Dir_Images))))
+	s.mux.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir(s.config.Dir_Css))))
+	s.mux.Handle("/script/", http.StripPrefix("/script/", http.FileServer(http.Dir(s.config.Dir_Script))))
 
 	s.mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		s.log.Log(r.Context(), slog.LevelInfo, "Get root")

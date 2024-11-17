@@ -13,35 +13,27 @@ func Page(title string, children ...g.Node) g.Node {
 		Language:    "fr",
 		Head: []g.Node{
 			gh.Link(gh.Rel("icon"), gh.Type("image/png"), gh.Href("/images/logo_coul.png")),
+			gh.Link(gh.Rel("stylesheet"), gh.Href("/css/bulma.min.css")),
 			gh.Script(gh.Src("script/script.js")),
 		},
 		Body: []g.Node{
-			gh.Class("bg-gradient-to-b from-white to-indigo-100 bg-no-repeat"),
-			gh.Div(
-				gh.Class("min-h-screen flex flex-col justify-between"),
-				header(),
-				gh.Div(
-					gh.Class("grow"),
-					container(true,
-						gh.Div(gh.Class("prose prose-lg prose-indigo"),
-							g.Group(children),
-						),
-					),
+			header(),
+			container(true,
+				gh.Div(gh.Class("hero-body"),
+					g.Group(children),
 				),
-				footer(),
 			),
+			footer(),
 		},
 	}
 	return gc.HTML5(props)
 }
 
 func header() g.Node {
-	return gh.Div(gh.Class("bg-indigo-600 text-white shadow"),
-		container(false,
-			gh.Div(gh.Class("flex items-center space-x-4 h-8"),
-				headerLink("/", "Home"),
-				headerLink("/about", "About"),
-			),
+	return gh.Section(gh.Class("hero"), gh.Class("is-Small"), gh.Class("is-primary"),
+		gh.Div(gh.Class("hero-body"),
+			gh.P(gh.Class("title"), g.Text("To B Services")),
+			gh.P(gh.Class("subtitle"), g.Text("Gestion des Consultants")),
 		),
 	)
 }
@@ -51,18 +43,13 @@ func headerLink(href, text string) g.Node {
 }
 
 func container(padY bool, children ...g.Node) g.Node {
-	return gh.Div(
-		gc.Classes{
-			"max-w-7xl mx-auto":     true,
-			"px-4 md:px-8 lg:px-16": true,
-			"py-4 md:py-8":          padY,
-		},
+	return gh.Section(gh.Class("section"),
 		g.Group(children),
 	)
 }
 
 func footer() g.Node {
-	return gh.Div(gh.Class("bg-gray-900 text-white shadow text-center h-16 flex items-center justify-center"),
+	return gh.Section(gh.Class("section"),
 		gh.A(gh.Href("https://www.gomponents.com"), g.Text("gomponents")),
 	)
 }

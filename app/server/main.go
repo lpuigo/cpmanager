@@ -4,14 +4,14 @@ import (
 	"context"
 	"github.com/lpuig/cpmanager/config"
 	"github.com/lpuig/cpmanager/http"
+	"github.com/lpuig/cpmanager/log"
 	"golang.org/x/sync/errgroup"
-	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
-func start(conf *config.Config, log *slog.Logger) error {
+func start(conf *config.Config, log *log.Logger) error {
 	log.Info("Starting app")
 
 	// We load environment variables from .env if it exists
@@ -66,7 +66,7 @@ func start(conf *config.Config, log *slog.Logger) error {
 
 func main() {
 	// Set up a logger that is used throughout the app
-	log := slog.New(slog.NewTextHandler(os.Stderr, nil))
+	log := log.New()
 
 	// set config
 	conf := config.Set()

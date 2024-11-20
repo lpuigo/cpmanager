@@ -4,27 +4,31 @@ import (
 	"context"
 	"errors"
 	"github.com/lpuig/cpmanager/config"
-	"io"
-	"log/slog"
+	"github.com/lpuig/cpmanager/log"
+	"github.com/lpuig/cpmanager/model/manager"
 	"net/http"
 	"time"
 )
 
 type ServerOptions struct {
 	Config *config.Config
-	Log    *slog.Logger
+	Log    *log.Logger
 }
 
 type Server struct {
 	config *config.Config
-	log    *slog.Logger
+	log    *log.Logger
 	mux    *http.ServeMux
 	server *http.Server
+
+	manager *manager.Manager
 }
 
 func NewServer(opts ServerOptions) *Server {
+	mgr := manager.New()
+
 	if opts.Log == nil {
-		opts.Log = slog.New(slog.NewTextHandler(io.Discard, nil))
+		opts.Log = log.New()
 	}
 
 	mux := http.NewServeMux()
@@ -41,12 +45,20 @@ func NewServer(opts ServerOptions) *Server {
 			WriteTimeout:      5 * time.Second,
 			IdleTimeout:       5 * time.Second,
 		},
+
+		manager: mgr,
 	}
 
 }
 
 // Start the server and set up routes.
 func (s *Server) Start() error {
+	s.log.Info("Starting manager")
+	err := s.manager.Init()
+	if err != nil {
+		return err
+	}
+
 	s.log.Info("Starting http server", "address", s.server.Addr)
 
 	s.setupRoutes()

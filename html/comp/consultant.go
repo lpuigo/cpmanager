@@ -16,7 +16,7 @@ func ConsultantsTable(cslts *consultant.Container) g.Node {
 					x.Get("/action/consult/add"),
 					x.Target("#consultant-list"),
 					//children
-					h.Span(h.Class("icon"), h.I(h.Class("fas fa-user-plus"))),
+					Icon("fas fa-user-plus"),
 					h.Span(g.Text("Nouveau Consultant")),
 				),
 			),

@@ -12,9 +12,10 @@ func Page(title string, children ...g.Node) g.Node {
 		Description: "une description",
 		Language:    "fr",
 		Head: []g.Node{
-			gh.Link(gh.Rel("icon"), gh.Type("image/png"), gh.Href("/images/logo_coul.png")),
-			gh.Link(gh.Rel("stylesheet"), gh.Href("/css/bulma.min.css")),
-			gh.Script(gh.Src("script/script.js")),
+			gh.Link(gh.Rel("icon"), gh.Type("image/png"), gh.Href("/Assets/images/logo_coul.png")),
+			gh.Link(gh.Rel("stylesheet"), gh.Href("/Assets/bulma/bulma.min.css")),
+			gh.Link(gh.Rel("stylesheet"), gh.Href("/Assets/fontawesome/6.7.1/css/all.min.css")),
+			gh.Script(gh.Src("/Assets/script/htmx/2.0.3/htmx.min.js")),
 		},
 		Body: []g.Node{
 			header(),
@@ -50,6 +51,6 @@ func container(padY bool, children ...g.Node) g.Node {
 
 func footer() g.Node {
 	return gh.Section(gh.Class("section"),
-		gh.A(gh.Href("https://www.gomponents.com"), g.Text("gomponents")),
+		gh.A(gh.Href("https://www.gomponents.com"), gh.Target("_blank"), g.Text("gomponents")),
 	)
 }

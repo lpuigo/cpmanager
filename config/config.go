@@ -1,15 +1,11 @@
 package config
 
 type Config struct {
-	Dir_Images string
-	Dir_Css    string
-	Dir_Script string
+	Dir_Asset string
 }
 
 func Set() *Config {
 	return &Config{
-		Dir_Images: "dist/images",
-		Dir_Css:    "dist/css",
-		Dir_Script: "dist/script",
+		Dir_Asset: "dist",
 	}
 }

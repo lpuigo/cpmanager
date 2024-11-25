@@ -39,9 +39,16 @@ func ModalHook() g.Node {
 	return h.Div(h.Class("modal"))
 }
 
+func modal(id string, children ...g.Node) g.Node {
+	return h.Div(h.ID(id), h.Class("modal is-active"), x.Trigger("closeModal from:body"), x.Target("this"), x.Swap("outerHTML"), x.Get("/action/closemodal"),
+		h.Div(h.Class("modal-background"),
+			x.Trigger("click, keyup[key=='Escape'] from:body")), x.Target("closest .modal"), x.Swap("outerHTML"), x.Get("/action/closemodal"),
+		g.Group(children),
+	)
+}
+
 func Modal(id string, children ...g.Node) g.Node {
-	return h.Div(h.ID(id), h.Class("modal is-active"),
-		h.Div(h.Class("modal-background"), x.Target("closest .modal"), x.Swap("outerHTML"), x.Get("/action/closemodal"), x.Trigger("click, keyup[key=='Escape'] from:body")),
+	return modal(id,
 		h.Div(h.Class("modal-content"),
 			g.Group(children),
 		),
@@ -50,8 +57,7 @@ func Modal(id string, children ...g.Node) g.Node {
 }
 
 func ModalCard(id string, children ...g.Node) g.Node {
-	return h.Div(h.ID(id), h.Class("modal is-active"),
-		h.Div(h.Class("modal-background"), x.Target("closest .modal"), x.Swap("outerHTML"), x.Get("/action/closemodal"), x.Trigger("click, keyup[key=='Escape'] from:body")),
+	return modal(id,
 		h.Div(h.Class("modal-card"),
 			g.Group(children),
 		),

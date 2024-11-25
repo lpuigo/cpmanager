@@ -34,6 +34,7 @@ func (s *Server) setupRoutes() {
 			LastName: r.FormValue("LastName"),
 		}
 		s.manager.Consultants.Add(newConsultant)
+		w.Header().Add("HX-Trigger-After-Swap", "closeModal")
 		comp.ConsultantsList(s.manager.Consultants).Render(w)
 	})
 

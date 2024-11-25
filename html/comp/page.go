@@ -19,12 +19,9 @@ func Page(title string, children ...g.Node) g.Node {
 		},
 		Body: []g.Node{
 			header(),
-			container(true,
-				h.Div(h.Class("hero-body"),
-					g.Group(children),
-				),
-			),
+			g.Group(children),
 			footer(),
+			ModalHook(),
 		},
 	}
 	return gc.HTML5(props)
@@ -39,10 +36,6 @@ func header() g.Node {
 		),
 		h.Div(),
 	)
-}
-
-func container(padY bool, children ...g.Node) g.Node {
-	return Section(g.Group(children))
 }
 
 func footer() g.Node {

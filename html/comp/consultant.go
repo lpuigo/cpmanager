@@ -18,7 +18,7 @@ func AddConsultantModal() g.Node {
 		),
 		h.Section(h.Class("modal-card-body"),
 			h.Div(h.Class("panel-block"),
-				h.Form(h.ID(formName), h.Class("content"), x.Post("/action/consult/add"), x.Trigger("submit"), x.Target("#consultant-list"),
+				h.Form(h.ID(formName), h.Class("content"), x.Post("/action/consult/add"), x.Swap("innerHTML"), x.Trigger("submit"), x.Target("#consultant-list"),
 					h.Div(h.Class("field"),
 						h.Label(h.Class("label"), g.Text("Prénom")),
 						h.Div(h.Class("control"),

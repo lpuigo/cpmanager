@@ -40,9 +40,11 @@ func ModalHook() g.Node {
 }
 
 func modal(id string, children ...g.Node) g.Node {
-	return h.Div(h.ID(id), h.Class("modal is-active"), x.Trigger("closeModal from:body"), x.Target("this"), x.Swap("outerHTML"), x.Get("/action/closemodal"),
+	return h.Div(h.ID(id), h.Class("modal is-active"),
+		x.Trigger("closeModal from:body"), x.Target("this"), x.Swap("outerHTML"), x.Get("/action/closemodal"),
 		h.Div(h.Class("modal-background"),
-			x.Trigger("click, keyup[key=='Escape'] from:body")), x.Target("closest .modal"), x.Swap("outerHTML"), x.Get("/action/closemodal"),
+			x.Trigger("click, keyup[key=='Escape'] from:body"), x.Target("closest .modal"), x.Swap("outerHTML"), x.Get("/action/closemodal"),
+		),
 		g.Group(children),
 	)
 }

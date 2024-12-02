@@ -6,11 +6,17 @@ import (
 )
 
 type Logger struct {
-	slog.Logger
+	*slog.Logger
 }
 
 func New() *Logger {
+	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+	slog.SetDefault(logger)
 	return &Logger{
-		Logger: *slog.New(slog.NewTextHandler(os.Stderr, nil)),
+		Logger: logger,
 	}
+}
+
+func (l *Logger) Reset() {
+	l.Logger = slog.Default()
 }

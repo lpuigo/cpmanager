@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/lpuig/cpmanager/config"
+	"github.com/lpuig/cpmanager/http/session"
 	"github.com/lpuig/cpmanager/log"
 	"github.com/lpuig/cpmanager/model/manager"
 	"net/http"
@@ -17,24 +18,25 @@ type ServerOptions struct {
 
 type Server struct {
 	config *config.Config
-	log    *log.Logger
 	mux    *http.ServeMux
 	server *http.Server
 
-	manager *manager.Manager
+	Log      *log.Logger
+	Sessions *session.Sessions
+	Manager  *manager.Manager
 }
 
 func NewServer(opts ServerOptions) *Server {
-	mgr := manager.New()
-
 	if opts.Log == nil {
 		opts.Log = log.New()
 	}
 
+	mgr := manager.New(opts.Log)
+
 	mux := http.NewServeMux()
 
 	return &Server{
-		log:    opts.Log,
+		Log:    opts.Log,
 		config: opts.Config,
 		mux:    mux,
 		server: &http.Server{
@@ -46,20 +48,21 @@ func NewServer(opts ServerOptions) *Server {
 			IdleTimeout:       5 * time.Second,
 		},
 
-		manager: mgr,
+		Sessions: session.New(),
+		Manager:  mgr,
 	}
 
 }
 
 // Start the server and set up routes.
 func (s *Server) Start() error {
-	s.log.Info("Starting manager")
-	err := s.manager.Init()
+	s.Log.Info("Starting manager")
+	err := s.Manager.Init()
 	if err != nil {
 		return err
 	}
 
-	s.log.Info("Starting http server", "address", s.server.Addr)
+	s.Log.Info("Starting http server", "address", s.server.Addr)
 
 	s.setupRoutes()
 
@@ -71,7 +74,7 @@ func (s *Server) Start() error {
 
 // Stop the server gracefully.
 func (s *Server) Stop() error {
-	s.log.Info("Stopping http server")
+	s.Log.Info("Stopping http server")
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
@@ -79,6 +82,6 @@ func (s *Server) Stop() error {
 	if err := s.server.Shutdown(ctx); err != nil {
 		return err
 	}
-	s.log.Info("Stopped http server")
+	s.Log.Info("Stopped http server")
 	return nil
 }

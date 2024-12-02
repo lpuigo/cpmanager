@@ -12,18 +12,18 @@ import (
 )
 
 type ServerOptions struct {
-	Config *config.Config
+	Config config.Config
 	Log    *log.Logger
 }
 
 type Server struct {
-	config *config.Config
+	config config.Config
 	mux    *http.ServeMux
 	server *http.Server
 
-	Log      *log.Logger
+	Log      log.Logger
 	Sessions *session.Sessions
-	Manager  *manager.Manager
+	Manager  manager.Manager
 }
 
 func NewServer(opts ServerOptions) *Server {
@@ -31,12 +31,12 @@ func NewServer(opts ServerOptions) *Server {
 		opts.Log = log.New()
 	}
 
-	mgr := manager.New(opts.Log)
+	mgr := manager.New(*opts.Log)
 
 	mux := http.NewServeMux()
 
 	return &Server{
-		Log:    opts.Log,
+		Log:    *opts.Log,
 		config: opts.Config,
 		mux:    mux,
 		server: &http.Server{
@@ -49,20 +49,20 @@ func NewServer(opts ServerOptions) *Server {
 		},
 
 		Sessions: session.New(),
-		Manager:  mgr,
+		Manager:  *mgr,
 	}
 
 }
 
 // Start the server and set up routes.
 func (s *Server) Start() error {
-	s.Log.Info("Starting manager")
+	s.Log.InfoContext(nil, "Starting manager")
 	err := s.Manager.Init()
 	if err != nil {
 		return err
 	}
 
-	s.Log.Info("Starting http server", "address", s.server.Addr)
+	s.Log.InfoContext(nil, "Starting http server", "address", s.server.Addr)
 
 	s.setupRoutes()
 
@@ -74,7 +74,7 @@ func (s *Server) Start() error {
 
 // Stop the server gracefully.
 func (s *Server) Stop() error {
-	s.Log.Info("Stopping http server")
+	s.Log.InfoContext(nil, "Stopping http server")
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
@@ -82,6 +82,6 @@ func (s *Server) Stop() error {
 	if err := s.server.Shutdown(ctx); err != nil {
 		return err
 	}
-	s.Log.Info("Stopped http server")
+	s.Log.InfoContext(nil, "Stopped http server")
 	return nil
 }

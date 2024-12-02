@@ -9,11 +9,11 @@ func (s *Server) setupRoutes() {
 
 	// define middleware
 	withManager := func(rh route.ManagerHandlerFunc) http.HandlerFunc {
-		m := *s.Manager // clone server manager
-		m.Log.Reset()
 		return func(w http.ResponseWriter, r *http.Request) {
-			m.Log.Logger = s.Log.With("method", r.Method, "path", r.URL.Path)
-			rh(&m, w, r)
+			m := s.Manager // clone server manager
+			m.Log.StartTimer()
+			m.Log.With("orig", "ROUTE", "method", r.Method, "path", r.URL.Path)
+			rh(m, w, r)
 		}
 	}
 

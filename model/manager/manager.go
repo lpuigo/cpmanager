@@ -6,11 +6,11 @@ import (
 )
 
 type Manager struct {
-	Log         *log.Logger
+	Log         log.Logger
 	Consultants *consultant.Container
 }
 
-func New(l *log.Logger) *Manager {
+func New(l log.Logger) *Manager {
 	csltCont := consultant.NewContainer()
 
 	mgr := &Manager{
@@ -21,6 +21,7 @@ func New(l *log.Logger) *Manager {
 	return mgr
 }
 
+// Init populates all manager containers
 func (c *Manager) Init() error {
 	err := c.Consultants.Load()
 	if err != nil {

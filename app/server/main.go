@@ -11,8 +11,8 @@ import (
 	"syscall"
 )
 
-func start(conf *config.Config, log *log.Logger) error {
-	log.Info("Starting app")
+func start(conf config.Config, log *log.Logger) error {
+	log.InfoContext(nil, "Starting app")
 
 	// We load environment variables from .env if it exists
 	//_ = env.Load()
@@ -47,7 +47,7 @@ func start(conf *config.Config, log *log.Logger) error {
 
 	// Wait for the context to be done, which happens when a signal is caught
 	<-ctx.Done()
-	log.Info("Stopping app")
+	log.InfoContext(nil, "Stopping app")
 
 	// Stop the server gracefully
 	errGrp.Go(func() error {
@@ -59,7 +59,7 @@ func start(conf *config.Config, log *log.Logger) error {
 		return err
 	}
 
-	log.Info("Stopped app")
+	log.InfoContext(nil, "Stopped app")
 
 	return nil
 }
@@ -73,7 +73,7 @@ func main() {
 
 	// Start the app, exit with a non-zero exit code on errors
 	if err := start(conf, log); err != nil {
-		log.Error("Error starting app", "error", err)
+		log.ErrorContext(nil, "Error starting app", "error", err)
 		os.Exit(1)
 	}
 }

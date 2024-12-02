@@ -5,18 +5,17 @@ import (
 	"github.com/lpuig/cpmanager/html/comp"
 	"github.com/lpuig/cpmanager/model/consultant"
 	"github.com/lpuig/cpmanager/model/manager"
-	"log/slog"
 	"net/http"
 )
 
 // Open New Consultant Modal
-func GetShowNewConsultantModal(m *manager.Manager, w http.ResponseWriter, r *http.Request) {
-	m.Log.InfoContext(r.Context(), "open new consult modal")
+func GetShowNewConsultantModal(m manager.Manager, w http.ResponseWriter, r *http.Request) {
 	comp.AddConsultantModal().Render(w)
+	m.Log.InfoContextWithTime(r.Context(), "open new consult modal")
 }
 
 // Retrieve New Consultant info from front Form. Return updated consultant list and trigger modal closing
-func PostAddNewConsultantFromModal(m *manager.Manager, w http.ResponseWriter, r *http.Request) {
+func PostAddNewConsultantFromModal(m manager.Manager, w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Trig modal closing
@@ -27,34 +26,34 @@ func PostAddNewConsultantFromModal(m *manager.Manager, w http.ResponseWriter, r 
 		FirstName: r.FormValue("FirstName"),
 		LastName:  r.FormValue("LastName"),
 	}
-	id := m.Consultants.Add(newConsultant)
-	m.Log.InfoContext(r.Context(), fmt.Sprintf("add new consult with id %s (%s)", id, newConsultant.Name()))
+	m.Consultants.Add(newConsultant)
 	comp.ConsultantsList(m.Consultants).Render(w)
+	m.Log.InfoContextWithTime(r.Context(), fmt.Sprintf("add new consult (%s)", newConsultant.Name()))
 }
 
 // Open Update Consultant Modal for consultant with url given id
-func GetShowUpdateConsultantModal(m *manager.Manager, w http.ResponseWriter, r *http.Request) {
+func GetShowUpdateConsultantModal(m manager.Manager, w http.ResponseWriter, r *http.Request) {
 	consultId := r.PathValue("id")
 	consult, found := m.Consultants.Get(consultId)
 	if !found {
-		m.Log.ErrorContext(r.Context(), fmt.Sprintf("open update consult modal failed: unknown id %s", consultId))
 		w.WriteHeader(http.StatusNotFound)
+		m.Log.ErrorContextWithTime(r.Context(), "open update consult modal failed: unknown id")
 		return
 	}
 
-	m.Log.Log(r.Context(), slog.LevelInfo, fmt.Sprintf("open update consult modal for id %s (%s)", consultId, consult.Name()))
 	comp.UpdateConsultantModal(consult).Render(w)
+	m.Log.InfoContextWithTime(r.Context(), fmt.Sprintf("open update consult modal for (%s)", consult.Name()))
 }
 
 // Retrieve New Consultant info from front Form. Return updated consultant list and trigger modal closing
-func PostUpdateConsultantFromModal(m *manager.Manager, w http.ResponseWriter, r *http.Request) {
+func PostUpdateConsultantFromModal(m manager.Manager, w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	consultId := r.PathValue("id")
 	consult, found := m.Consultants.Get(consultId)
 	if !found {
-		m.Log.ErrorContext(r.Context(), fmt.Sprintf("update consult failed: unknown id %s", consultId))
 		w.WriteHeader(http.StatusNotFound)
+		m.Log.ErrorContextWithTime(r.Context(), "update consult failed: unknown id")
 		return
 	}
 
@@ -65,7 +64,6 @@ func PostUpdateConsultantFromModal(m *manager.Manager, w http.ResponseWriter, r 
 	consult.FirstName = r.FormValue("FirstName")
 	consult.LastName = r.FormValue("LastName")
 	m.Consultants.Update(consult)
-	m.Log.InfoContext(r.Context(), fmt.Sprintf("update consult with id %s (%s)", consultId, consult.Name()))
 	comp.ConsultantLine(consult).Render(w)
-
+	m.Log.InfoContextWithTime(r.Context(), fmt.Sprintf("update consult (%s)", consult.Name()))
 }

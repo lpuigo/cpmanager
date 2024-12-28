@@ -24,6 +24,10 @@ func (c *Container) Add(cslt Consultant) string {
 	return id
 }
 
+func (c *Container) Update(cslt Consultant) {
+	c.index[cslt.Id] = cslt
+}
+
 func (c *Container) Get(id string) (Consultant, bool) {
 	cst, ok := c.index[id]
 	return cst, ok
@@ -71,8 +75,4 @@ func (c *Container) AddNewConsultant() {
 		LastName:  fmt.Sprintf("Doe%02d", nbC+1),
 	}
 	c.Add(newConsult)
-}
-
-func (c *Container) Update(cslt Consultant) {
-	c.index[cslt.Id] = cslt
 }

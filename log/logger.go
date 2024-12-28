@@ -54,6 +54,10 @@ func (l *Logger) ErrorContext(ctx context.Context, msg string, args ...any) {
 	l.activ.ErrorContext(ctx, msg, args...)
 }
 
+func (l *Logger) Error(msg string, args ...any) {
+	l.activ.Error(msg, args...)
+}
+
 func (l *Logger) ErrorContextWithTime(ctx context.Context, msg string, args ...any) {
 	args = append([]any{"time", time.Since(l.Time)}, args...)
 	l.activ.ErrorContext(ctx, msg, args...)

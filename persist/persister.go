@@ -2,8 +2,9 @@ package persist
 
 import (
 	"fmt"
+	"github.com/google/uuid"
+	log "github.com/lpuig/cpmanager/log"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"sync"
@@ -11,12 +12,13 @@ import (
 )
 
 type Recorder interface {
-	GetId() int
-	SetId(id int)
+	GetId() string
+	SetId(id string)
 	Dirty()
 	Persist(path string) error
 	Remove(path string) error
 	GetFileName() string
+	GetIdFromFileName(string) (string, error)
 	Marshall(writer io.Writer) error
 }
 
@@ -29,21 +31,27 @@ type Persister struct {
 	name      string
 	directory string
 	delay     time.Duration
-	records   map[int]Recorder
-	nextId    int
+	records   map[string]Recorder
+	nextId    func() string
+	log       *log.Logger
 
-	mut          sync.RWMutex
-	persistDone  *sync.Cond
-	dirtyIds     []int
+	mut         sync.RWMutex
+	persistDone *sync.Cond
+	dirtyIds    []string
+
 	persistTimer *time.Timer
 }
 
 // NewPersister creates a new persister with given name and storing its record in given dir directory
-func NewPersister(name, dir string) *Persister {
+func NewPersister(name, dir string, logger *log.Logger) *Persister {
 	p := &Persister{
 		name:      name,
 		directory: dir,
 		delay:     DefaultPersistDelay,
+		log:       logger,
+		nextId: func() string {
+			return uuid.NewString()
+		},
 	}
 	p.persistDone = sync.NewCond(&p.mut)
 	p.Reinit()
@@ -69,8 +77,7 @@ func (p *Persister) Reinit() {
 	p.WaitPersistDone()
 	p.mut.Lock()
 	defer p.mut.Unlock()
-	p.records = make(map[int]Recorder)
-	p.nextId = 0
+	p.records = make(map[string]Recorder)
 }
 
 // SetPersistDelay sets the Pesistance Delay of the Persister
@@ -85,7 +92,7 @@ func (p *Persister) NoDelay() {
 	p.SetPersistDelay(0)
 }
 
-// CheckDirectory checks if Persister directory exists and create deleted dir if missing (returns nil error if ok)
+// CheckDirectory checks if Persister directory exists and create deleted dir if missing
 func (p *Persister) CheckDirectory() error {
 	fi, err := os.Stat(p.directory)
 	if err != nil {
@@ -101,14 +108,13 @@ func (p *Persister) CheckDirectory() error {
 	return nil
 }
 
-// LoadDirectory loads all persisted Records
-func (p *Persister) LoadDirectory(recordType string, recordFactory func(string) (Recorder, error)) error {
+// LoadDirectory loads all persisted Records. Records Id are set from file names
+func (p *Persister) LoadDirectory(recordFactory func(string) (Recorder, error)) error {
 	p.WaitPersistDone() // first wait for all ongoing operations to end
 	p.mut.Lock()
 	defer p.mut.Unlock()
 
-	p.records = make(map[int]Recorder)
-	p.nextId = 0
+	p.records = make(map[string]Recorder)
 
 	files, err := p.GetFilesList("deleted")
 	if err != nil {
@@ -118,8 +124,14 @@ func (p *Persister) LoadDirectory(recordType string, recordFactory func(string) 
 	for _, file := range files {
 		ar, err := recordFactory(file)
 		if err != nil {
-			return fmt.Errorf("could not instantiate %s from '%s': %v", recordType, filepath.Base(file), err)
+			return fmt.Errorf("could not instantiate %s from '%s': %v", p.name, filepath.Base(file), err)
 		}
+		bfile := filepath.Base(file)
+		id, err := ar.GetIdFromFileName(bfile)
+		if err != nil {
+			return fmt.Errorf("could not get id from '%s': %v", bfile, err)
+		}
+		ar.SetId(id)
 		err = p.load(ar)
 		if err != nil {
 			return fmt.Errorf("error while loading %s: %s", file, err.Error())
@@ -129,7 +141,7 @@ func (p *Persister) LoadDirectory(recordType string, recordFactory func(string) 
 }
 
 // HasId returns true if persister contains a record with given id, false otherwise
-func (p *Persister) HasId(id int) bool {
+func (p *Persister) HasId(id string) bool {
 	if _, ok := p.records[id]; ok {
 		return true
 	}
@@ -157,7 +169,7 @@ func (p *Persister) GetFilesList(skipdir string) (list []string, err error) {
 	return
 }
 
-// GetRecords returns a slice with all Records from reciever Persister
+// GetRecords returns a slice with all Records from receiver Persister
 func (p *Persister) GetRecords() []Recorder {
 	p.mut.RLock()
 	defer p.mut.RUnlock()
@@ -171,30 +183,30 @@ func (p *Persister) GetRecords() []Recorder {
 }
 
 // GetById returns a recorder with given Id (or nil if Id not found)
-func (p *Persister) GetById(id int) Recorder {
+func (p *Persister) GetById(id string) Recorder {
 	p.mut.RLock()
 	defer p.mut.RUnlock()
 	return p.records[id]
 }
 
 // Add adds the given Record to the Persister, assigns it a new id, triggers Persit mechanism and returns its (new) id
-func (p *Persister) Add(r Recorder) int {
+func (p *Persister) Add(r Recorder) string {
 	p.mut.Lock()
-	defer func() { p.nextId++ }()
 	defer p.mut.Unlock()
 
-	r.SetId(p.nextId)
-	p.records[p.nextId] = r
+	id := p.nextId()
+	r.SetId(id)
+	p.records[id] = r
 	p.markDirty(r)
 
-	return p.nextId
+	return id
 }
 
 // Update the given Record to the Persister and triggers Persit mechanism
 func (p *Persister) Update(r Recorder) error {
 	rId := r.GetId()
 	if !p.HasId(rId) {
-		return fmt.Errorf("record with id %d not found", rId)
+		return fmt.Errorf("record with id %s not found", rId)
 	}
 	p.mut.Lock()
 	defer p.mut.Unlock()
@@ -212,16 +224,16 @@ func (p *Persister) Load(r Recorder) error {
 	return p.load(r)
 }
 
-// load adds the given Recorder to the Persister
+// load checks given record's Id, and if not already known, adds it to the reciever
 func (p *Persister) load(r Recorder) error {
 	rId := r.GetId()
 	if p.HasId(rId) {
-		return fmt.Errorf("persister already contains a record with Id %d", rId)
+		return fmt.Errorf("persister already contains a record with Id %s", rId)
 	}
 	p.records[rId] = r
-	if p.nextId <= rId {
-		p.nextId = rId + 1
-	}
+	//if p.nextId <= rId {
+	//	p.nextId = rId + 1
+	//}
 	return nil
 }
 
@@ -245,14 +257,14 @@ func (p *Persister) markDirty(r Recorder) {
 func (p *Persister) Remove(r Recorder) error {
 	id := r.GetId()
 	if _, ok := p.records[id]; !ok {
-		return fmt.Errorf("persister does not contains given record")
+		return fmt.Errorf("persister does not contains given record with Id %s", id)
 	}
 	p.mut.Lock()
 	defer p.mut.Unlock()
 	go func(dr Recorder) {
 		err := dr.Remove(p.directory)
 		if err != nil {
-			log.Printf("error removing record GetId %d: %v\n", id, err)
+			p.log.Error(fmt.Sprintf("error removing record id %s: %v\n", id, err))
 		}
 	}(r)
 	delete(p.records, id)
@@ -267,7 +279,7 @@ func (p *Persister) PersistAll() {
 	if p.persistTimer != nil {
 		p.persistTimer.Stop()
 		p.persistTimer = nil
-		p.dirtyIds = []int{}
+		p.dirtyIds = []string{}
 	}
 
 	token := make(chan struct{}, ParallelPersister)
@@ -277,7 +289,7 @@ func (p *Persister) PersistAll() {
 		go func(pr Recorder) {
 			err := r.Persist(p.directory)
 			if err != nil {
-				log.Printf("error persisting record ID %d: %v\n", r.GetId(), err)
+				p.log.Error(fmt.Sprintf("error persisting record id %s: %v\n", r.GetId(), err))
 			}
 			_ = <-token
 		}(r)
@@ -320,7 +332,7 @@ func (p *Persister) persist() {
 		go func(pr Recorder) {
 			err := pr.Persist(p.directory)
 			if err != nil {
-				log.Printf("error persisting record ID %d: %v\n", pr.GetId(), err)
+				p.log.Error(fmt.Sprintf("error persisting record ID %s: %v\n", pr.GetId(), err))
 			}
 			_ = <-token
 		}(r)
@@ -329,7 +341,7 @@ func (p *Persister) persist() {
 	for i := 0; i < ParallelPersister; i++ {
 		token <- struct{}{}
 	}
-	p.dirtyIds = []int{}
+	p.dirtyIds = []string{}
 	p.persistDone.Broadcast()
 }
 

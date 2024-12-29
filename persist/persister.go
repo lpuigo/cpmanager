@@ -183,10 +183,11 @@ func (p *Persister) GetRecords() []Recorder {
 }
 
 // GetById returns a recorder with given Id (or nil if Id not found)
-func (p *Persister) GetById(id string) Recorder {
+func (p *Persister) GetById(id string) (Recorder, bool) {
 	p.mut.RLock()
 	defer p.mut.RUnlock()
-	return p.records[id]
+	r, found := p.records[id]
+	return r, found
 }
 
 // Add adds the given Record to the Persister, assigns it a new id, triggers Persit mechanism and returns its (new) id

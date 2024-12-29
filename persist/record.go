@@ -31,7 +31,7 @@ func NewRecord(marshall func(w io.Writer) error) *Record {
 }
 
 // GetId returns the inner record id
-func (r Record) GetId() string {
+func (r *Record) GetId() string {
 	return r.id
 }
 
@@ -62,7 +62,7 @@ func (r *Record) Persist(path string) error {
 }
 
 // Remove moves the receiver record to deleted directory. This record won't be loaded anymore with persister init / reload
-func (r Record) Remove(path string) error {
+func (r *Record) Remove(path string) error {
 	dpath := filepath.Join(path, "deleted")
 	file := r.GetFilePath(path)
 	dfile := r.GetFilePath(dpath)
@@ -70,22 +70,22 @@ func (r Record) Remove(path string) error {
 }
 
 // GetFilePath returns receiver's full file path name by appening given path and receiver file name
-func (r Record) GetFilePath(path string) string {
+func (r *Record) GetFilePath(path string) string {
 	return filepath.Join(path, r.GetFileName())
 }
 
 // GetFileName returns receiver file name (zero padded id with json extension)
-func (r Record) GetFileName() string {
+func (r *Record) GetFileName() string {
 	return r.idToName(r.GetId())
 }
 
 // GetFileName returns receiver file name (zero padded id with json extension)
-func (r Record) GetIdFromFileName(file string) (string, error) {
+func (r *Record) GetIdFromFileName(file string) (string, error) {
 	return r.nameToId(file)
 }
 
 // Marshall writes marshalled receiver to given writer
-func (r Record) Marshall(w io.Writer) error {
+func (r *Record) Marshall(w io.Writer) error {
 	return r.marshall(w)
 }
 

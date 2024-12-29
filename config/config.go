@@ -1,11 +1,13 @@
 package config
 
 type Config struct {
-	Dir_Asset string
+	DirAsset               string
+	DirPersisterConsultant string
 }
 
 func Set() Config {
 	return Config{
-		Dir_Asset: "dist",
+		DirAsset:               "dist",
+		DirPersisterConsultant: "ressources/consultant",
 	}
 }

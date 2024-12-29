@@ -31,10 +31,13 @@ func start(conf config.Config, log *log.Logger) error {
 	//}
 
 	// Set up the HTTP server, injecting the database and logger
-	s := http.NewServer(http.ServerOptions{
+	s, err := http.NewServer(http.ServerOptions{
 		Config: conf,
 		Log:    log,
 	})
+	if err != nil {
+		return err
+	}
 
 	// Use an errgroup to wait for separate goroutines which can error
 	errGrp, ctx := errgroup.WithContext(ctx)

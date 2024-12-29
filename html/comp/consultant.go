@@ -8,7 +8,7 @@ import (
 	h "maragu.dev/gomponents/html"
 )
 
-func ConsultantsTable(cslts *consultant.Container) g.Node {
+func ConsultantsTable(cslts *consultant.ConsultantsPersister) g.Node {
 	return h.Div(h.Style("margin: 15px 48px;"),
 		h.Nav(h.Class("level"),
 			h.Div(h.Class("level-left"),
@@ -29,11 +29,11 @@ func ConsultantsTable(cslts *consultant.Container) g.Node {
 	)
 }
 
-func ConsultantsList(cslts *consultant.Container) g.Node {
+func ConsultantsList(cslts *consultant.ConsultantsPersister) g.Node {
 	return g.Map(cslts.GetSortedByName(), ConsultantLine)
 }
 
-func ConsultantLine(cslt consultant.Consultant) g.Node {
+func ConsultantLine(cslt *consultant.Consultant) g.Node {
 	return h.Div(
 		h.ID(fmt.Sprintf("consultant-%s", cslt.Id)),
 		h.Class("box"),

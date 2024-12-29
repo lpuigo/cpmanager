@@ -22,7 +22,7 @@ func PostAddNewConsultantFromModal(m manager.Manager, w http.ResponseWriter, r *
 	w.Header().Add("HX-Trigger-After-Swap", "closeModal")
 
 	// Create new consultant
-	newConsultant := consultant.Consultant{
+	newConsultant := &consultant.Consultant{
 		FirstName: r.FormValue("FirstName"),
 		LastName:  r.FormValue("LastName"),
 	}

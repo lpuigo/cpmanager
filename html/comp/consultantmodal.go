@@ -8,7 +8,7 @@ import (
 	h "maragu.dev/gomponents/html"
 )
 
-func UpdateConsultantModal(csl consultant.Consultant) g.Node {
+func UpdateConsultantModal(csl *consultant.Consultant) g.Node {
 	formName := "consultant-form"
 	return ModalCard("add-consultant-modal",
 		h.Header(h.Class("modal-card-head"),

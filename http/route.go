@@ -18,7 +18,7 @@ func (s *Server) setupRoutes() {
 	}
 
 	//TODO use compress middleware github.com/klauspost/compress
-	s.mux.Handle("/Assets/", http.StripPrefix("/Assets/", http.FileServer(http.Dir(s.config.Dir_Asset))))
+	s.mux.Handle("/Assets/", http.StripPrefix("/Assets/", http.FileServer(http.Dir(s.config.DirAsset))))
 
 	s.mux.HandleFunc("GET /{$}", withManager(route.GetMainPage))
 

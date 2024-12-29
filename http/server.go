@@ -26,12 +26,15 @@ type Server struct {
 	Manager  manager.Manager
 }
 
-func NewServer(opts ServerOptions) *Server {
+func NewServer(opts ServerOptions) (*Server, error) {
 	if opts.Log == nil {
 		opts.Log = log.New()
 	}
 
-	mgr := manager.New(*opts.Log)
+	mgr, err := manager.New(opts.Log, opts.Config)
+	if err != nil {
+		return nil, err
+	}
 
 	mux := http.NewServeMux()
 
@@ -50,7 +53,7 @@ func NewServer(opts ServerOptions) *Server {
 
 		Sessions: session.New(),
 		Manager:  *mgr,
-	}
+	}, nil
 
 }
 

@@ -15,6 +15,7 @@ func Page(title string, children ...g.Node) g.Node {
 			h.Link(h.Rel("icon"), h.Type("image/png"), h.Href("/Assets/images/logo_coul.png")),
 			h.Link(h.Rel("stylesheet"), h.Href("/Assets/bulma/bulma.min.css")),
 			h.Link(h.Rel("stylesheet"), h.Href("/Assets/fontawesome/6.7.1/css/all.min.css")),
+			h.Link(h.Rel("stylesheet"), h.Href("/Assets/style/cpmanager.css")),
 			h.Script(h.Src("/Assets/script/htmx/2.0.3/htmx.min.js")),
 		},
 		Body: []g.Node{

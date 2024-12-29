@@ -27,7 +27,7 @@ func PostAddNewConsultantFromModal(m manager.Manager, w http.ResponseWriter, r *
 		LastName:  r.FormValue("LastName"),
 	}
 	m.Consultants.Add(newConsultant)
-	comp.ConsultantsList(m.Consultants).Render(w)
+	comp.ConsultantTable(m.Consultants).Render(w)
 	m.Log.InfoContextWithTime(r.Context(), fmt.Sprintf("add new consult (%s)", newConsultant.Name()))
 }
 
@@ -64,6 +64,23 @@ func PostUpdateConsultantFromModal(m manager.Manager, w http.ResponseWriter, r *
 	consult.FirstName = r.FormValue("FirstName")
 	consult.LastName = r.FormValue("LastName")
 	m.Consultants.Update(consult)
-	comp.ConsultantLine(consult).Render(w)
+	comp.ConsultantTableRow(consult).Render(w)
 	m.Log.InfoContextWithTime(r.Context(), fmt.Sprintf("update consult (%s)", consult.Name()))
+}
+
+// Delete Consultant
+func DeleteConsultant(m manager.Manager, w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	consultId := r.PathValue("id")
+	consult, found := m.Consultants.Get(consultId)
+	if !found {
+		w.WriteHeader(http.StatusNotFound)
+		m.Log.ErrorContextWithTime(r.Context(), "delete consult failed: unknown id")
+		return
+	}
+
+	// delete consultant
+	m.Consultants.Remove(consult)
+	m.Log.InfoContextWithTime(r.Context(), fmt.Sprintf("delete consult (%s)", consult.Name()))
 }

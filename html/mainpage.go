@@ -7,6 +7,6 @@ import (
 )
 
 func MainPage(w io.Writer, mgr manager.Manager) {
-	mainPage := comp.Page("Ma main page", comp.ConsultantsTable(mgr.Consultants))
+	mainPage := comp.Page("Ma main page", comp.ConsultantsBlock(mgr.Consultants))
 	mainPage.Render(w)
 }

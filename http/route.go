@@ -32,4 +32,7 @@ func (s *Server) setupRoutes() {
 	s.mux.HandleFunc("GET /action/consult/updatemodal/{id}", withManager(route.GetShowUpdateConsultantModal))
 	s.mux.HandleFunc("POST /action/consult/update/{id}", withManager(route.PostUpdateConsultantFromModal))
 
+	// Delete Consultant
+	s.mux.HandleFunc("DELETE /action/consult/{id}", withManager(route.DeleteConsultant))
+
 }

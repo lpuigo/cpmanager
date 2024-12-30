@@ -22,10 +22,13 @@ func PostAddNewConsultantFromModal(m manager.Manager, w http.ResponseWriter, r *
 	w.Header().Add("HX-Trigger-After-Swap", "closeModal")
 
 	// Create new consultant
-	newConsultant := &consultant.Consultant{
-		FirstName: r.FormValue("FirstName"),
-		LastName:  r.FormValue("LastName"),
-	}
+	newConsultant := &consultant.Consultant{}
+	newConsultant.Clean(
+		r.FormValue("FirstName"),
+		r.FormValue("LastName"),
+		r.FormValue("Profile"),
+		r.FormValue("CrmrId"),
+	)
 	m.Consultants.Add(newConsultant)
 	comp.ConsultantTable(m.Consultants).Render(w)
 	m.Log.InfoContextWithTime(r.Context(), fmt.Sprintf("add new consult (%s)", newConsultant.Name()))
@@ -61,8 +64,12 @@ func PostUpdateConsultantFromModal(m manager.Manager, w http.ResponseWriter, r *
 	w.Header().Add("HX-Trigger-After-Swap", "closeModal")
 
 	// update consultant
-	consult.FirstName = r.FormValue("FirstName")
-	consult.LastName = r.FormValue("LastName")
+	consult.Clean(
+		r.FormValue("FirstName"),
+		r.FormValue("LastName"),
+		r.FormValue("Profile"),
+		r.FormValue("CrmrId"),
+	)
 	m.Consultants.Update(consult)
 	comp.ConsultantTableRow(consult).Render(w)
 	m.Log.InfoContextWithTime(r.Context(), fmt.Sprintf("update consult (%s)", consult.Name()))

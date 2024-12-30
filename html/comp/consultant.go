@@ -48,8 +48,11 @@ func ConsultantTable(cslts *consultant.ConsultantsPersister) g.Node {
 	return h.Table(h.Class("table"),
 		h.THead(
 			h.Th(g.Text("Nom Prénom")),
-			h.Th(g.Text("Info1")),
-			h.Th(g.Text("Info2")),
+			h.Th(g.Text("Profile")),
+			h.Th(g.Text("Statut")),
+			h.Th(g.Text("Client")),
+			h.Th(g.Text("Manager")),
+			h.Th(g.Text("Mission")),
 			h.Th(g.Text("Actions")),
 		),
 		h.TBody(
@@ -62,10 +65,23 @@ func ConsultantTable(cslts *consultant.ConsultantsPersister) g.Node {
 }
 
 func ConsultantTableRow(cslt *consultant.Consultant) g.Node {
+	nameNode := g.Group{g.Text(cslt.Name())}
+	if cslt.CrmrId != "" {
+		nameNode = append(nameNode,
+			h.A(
+				Icon("fas fa-square-arrow-up-right"),
+				h.Href(cslt.CrmUrl()),
+				h.Target("_blank"),
+			),
+		)
+	}
 	return h.Tr(h.ID(fmt.Sprintf("consultant-%s", cslt.Id)),
-		h.Td(g.Text(cslt.Name())),
-		h.Td(),
-		h.Td(),
+		h.Td(nameNode),
+		h.Td(g.Text(cslt.Profile)),
+		h.Td(g.Text(cslt.Status())),
+		h.Td(g.Text(cslt.Client())),
+		h.Td(g.Text(cslt.Manager())),
+		h.Td(g.Text(cslt.MissionTitle())),
 		h.Td(
 			h.A(
 				Icon("fas fa-user-pen"),

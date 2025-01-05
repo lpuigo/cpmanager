@@ -66,6 +66,14 @@ func ModalCard(id string, children ...g.Node) g.Node {
 	)
 }
 
+func ModalCardWithWidth(id, width string, children ...g.Node) g.Node {
+	return modal(id,
+		h.Div(h.Class("modal-card"), h.Style("width: "+width+";"),
+			g.Group(children),
+		),
+	)
+}
+
 func Navbar(isFixedTop bool, margin string, brand, start, end g.Node) g.Node {
 	return h.Nav(gc.Classes{
 		"navbar":       true,

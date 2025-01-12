@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/lpuig/cpmanager/html"
-	"github.com/lpuig/cpmanager/html/comp"
+	"github.com/lpuig/cpmanager/html/bulmacomp"
 	"github.com/lpuig/cpmanager/model/manager"
 	"net/http"
 )
@@ -17,6 +17,6 @@ func GetMainPage(m manager.Manager, w http.ResponseWriter, r *http.Request) {
 
 // Return close modal elem
 func GetCloseModal(m manager.Manager, w http.ResponseWriter, r *http.Request) {
-	comp.ModalHook().Render(w)
+	bulmacomp.ModalHook().Render(w)
 	m.Log.InfoContextWithTime(r.Context(), "close modal")
 }

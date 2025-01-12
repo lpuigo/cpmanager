@@ -48,7 +48,7 @@ func GetShowUpdateConsultantModal(m manager.Manager, w http.ResponseWriter, r *h
 	m.Log.InfoContextWithTime(r.Context(), fmt.Sprintf("open update consult modal for (%s)", consult.Name()))
 }
 
-// Retrieve New Consultant info from front Form. Return updated consultant list and trigger modal closing
+// Retrieve New Consultant info from front Form. Return updated consultant row and trigger modal closing
 func PostUpdateConsultantFromModal(m manager.Manager, w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 

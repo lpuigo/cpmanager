@@ -29,10 +29,14 @@ func (s *Server) setupRoutes() {
 	s.mux.HandleFunc("POST /action/consult/add", withManager(route.PostAddNewConsultantFromModal))
 
 	// Update Consultant
-	s.mux.HandleFunc("GET /action/consult/updatemodal/{id}", withManager(route.GetShowUpdateConsultantModal))
-	s.mux.HandleFunc("POST /action/consult/update/{id}", withManager(route.PostUpdateConsultantFromModal))
+	s.mux.HandleFunc("GET /action/consult/{id}/updatemodal", withManager(route.GetShowUpdateConsultantModal))
+	s.mux.HandleFunc("POST /action/consult/{id}/update", withManager(route.PostUpdateConsultantFromModal))
 
 	// Delete Consultant
 	s.mux.HandleFunc("DELETE /action/consult/{id}", withManager(route.DeleteConsultant))
+
+	// Add NewMission
+	s.mux.HandleFunc("GET /action/consult/{id}/addmissionmodal", withManager(route.GetShowAddMissionModal))
+	s.mux.HandleFunc("POST /action/consult/{id}/addmission", withManager(route.PostAddMissionFromModal))
 
 }

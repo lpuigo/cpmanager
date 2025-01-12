@@ -2,6 +2,7 @@ package comp
 
 import (
 	"fmt"
+	"github.com/lpuig/cpmanager/html/bulmacomp"
 	"github.com/lpuig/cpmanager/model/consultant"
 	g "maragu.dev/gomponents"
 	x "maragu.dev/gomponents-htmx"
@@ -48,7 +49,7 @@ func consultantForm(csl *consultant.Consultant, formName string, submitNode ...g
 
 		// Row Profile ===================================================
 		h.Div(h.Class("field"),
-			h.Label(h.Class("label"), g.Text("Profile")),
+			h.Label(h.Class("label"), g.Text("Profil")),
 			h.Div(h.Class("control"),
 				h.Input(h.Class("input"), h.Type("text"), h.Name("Profile"), h.Placeholder("Developpeur"), h.Value(csl.Profile)),
 			),
@@ -58,7 +59,7 @@ func consultantForm(csl *consultant.Consultant, formName string, submitNode ...g
 
 func UpdateConsultantModal(csl *consultant.Consultant) g.Node {
 	formName := "consultant-form"
-	return ModalCardWithWidth("update-consultant-modal", "60vw",
+	return bulmacomp.ModalCardWithWidth("update-consultant-modal", "60vw",
 		h.Header(h.Class("modal-card-head"),
 			h.P(h.Class("modal-card-title"), g.Text("Consultant")),
 			h.Button(h.Class("delete"), h.Aria("label", "close"),
@@ -69,7 +70,7 @@ func UpdateConsultantModal(csl *consultant.Consultant) g.Node {
 			h.Div(h.Class("panel-block"),
 				consultantForm(csl, formName,
 					x.Trigger("submit"),
-					x.Post(fmt.Sprintf("/action/consult/update/%s", csl.Id)),
+					x.Post(fmt.Sprintf("/action/consult/%s/update", csl.Id)),
 					x.Target(fmt.Sprintf("#consultant-%s", csl.Id)),
 					x.Swap("outerHTML"),
 				),
@@ -93,7 +94,7 @@ func UpdateConsultantModal(csl *consultant.Consultant) g.Node {
 
 func AddConsultantModal() g.Node {
 	formName := "consultant-form"
-	return ModalCardWithWidth("add-consultant-modal", "60vw",
+	return bulmacomp.ModalCardWithWidth("add-consultant-modal", "60vw",
 		h.Header(h.Class("modal-card-head"),
 			h.P(h.Class("modal-card-title"), g.Text("Consultant")),
 			h.Button(h.Class("delete"), h.Aria("label", "close"),

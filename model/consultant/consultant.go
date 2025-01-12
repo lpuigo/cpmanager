@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -11,21 +13,6 @@ var titler cases.Caser
 
 func init() {
 	titler = cases.Title(language.French)
-}
-
-type PriceHistory struct {
-	Price int
-	Day   string
-}
-
-type Mission struct {
-	Title     string
-	Company   string
-	Manager   string
-	StartDay  string
-	EndDay    string
-	DailyCost []PriceHistory
-	DailyRate []PriceHistory
 }
 
 type Consultant struct {
@@ -39,6 +26,15 @@ type Consultant struct {
 
 func NewConsultant() *Consultant {
 	return &Consultant{}
+}
+
+func cleanIntAttribute(text string) int {
+	ttxt := strings.TrimSpace(text)
+	res, err := strconv.Atoi(ttxt)
+	if err != nil {
+		return 0
+	}
+	return res
 }
 
 func cleanTextAttribute(text string, title bool) string {
@@ -98,4 +94,26 @@ func (c *Consultant) MissionTitle() string {
 
 func (c *Consultant) CrmUrl() string {
 	return fmt.Sprintf("https://ui.boondmanager.com/resources/%s/overview", c.CrmrId)
+}
+
+func (c *Consultant) HasActiveMission() bool {
+	return len(c.Missions) > 0 && c.LastMission().IsActive()
+}
+
+func (c *Consultant) LastMission() *Mission {
+	if len(c.Missions) == 0 {
+		return nil
+	}
+	return &c.Missions[len(c.Missions)-1]
+}
+
+func (c *Consultant) AddMission(m Mission) {
+	c.Missions = append(c.Missions, m)
+	c.sortMission()
+}
+
+func (c *Consultant) sortMission() {
+	sort.Slice(c.Missions, func(i, j int) bool {
+		return c.Missions[i].StartDay < c.Missions[j].StartDay
+	})
 }

@@ -2,6 +2,7 @@ package comp
 
 import (
 	"fmt"
+	"github.com/lpuig/cpmanager/html/bulmacomp"
 	"github.com/lpuig/cpmanager/model/consultant"
 	g "maragu.dev/gomponents"
 	x "maragu.dev/gomponents-htmx"
@@ -18,7 +19,7 @@ func ConsultantsBlock(cslts *consultant.ConsultantsPersister) g.Node {
 					//x.Target("#consultant-list"),
 					x.Get("/action/consult/addmodal"), x.Target(".modal"), x.Swap("outerHTML"),
 					//children
-					Icon("fas fa-user-plus"),
+					bulmacomp.Icon("fas fa-user-plus"),
 					h.Span(g.Text("Nouveau Consultant...")),
 				),
 			),
@@ -49,10 +50,7 @@ func ConsultantTable(cslts *consultant.ConsultantsPersister) g.Node {
 		h.THead(
 			h.Th(g.Text("Nom Prénom")),
 			h.Th(g.Text("Profile")),
-			h.Th(g.Text("Statut")),
-			h.Th(g.Text("Client")),
-			h.Th(g.Text("Manager")),
-			h.Th(g.Text("Mission")),
+			g.Group(missionColumnHeader()),
 			h.Th(g.Text("Actions")),
 		),
 		h.TBody(
@@ -69,29 +67,79 @@ func ConsultantTableRow(cslt *consultant.Consultant) g.Node {
 	if cslt.CrmrId != "" {
 		nameNode = append(nameNode,
 			h.A(
-				Icon("fas fa-square-arrow-up-right"),
+				bulmacomp.Icon("fas fa-square-arrow-up-right"),
 				h.Href(cslt.CrmUrl()),
 				h.Target("_blank"),
 			),
 		)
 	}
+
 	return h.Tr(h.ID(fmt.Sprintf("consultant-%s", cslt.Id)),
 		h.Td(nameNode),
 		h.Td(g.Text(cslt.Profile)),
-		h.Td(g.Text(cslt.Status())),
-		h.Td(g.Text(cslt.Client())),
-		h.Td(g.Text(cslt.Manager())),
-		h.Td(g.Text(cslt.MissionTitle())),
+		g.Group(missionColumnRow(cslt)),
 		h.Td(
 			h.A(
-				Icon("fas fa-user-pen"),
-				x.Trigger("click"), x.Get(fmt.Sprintf("/action/consult/updatemodal/%s", cslt.Id)), x.Target(".modal"), x.Swap("outerHTML"),
+				bulmacomp.Icon("fas fa-user-pen"),
+				x.Trigger("click"), x.Get(fmt.Sprintf("/action/consult/%s/updatemodal", cslt.Id)), x.Target(".modal"), x.Swap("outerHTML"),
 			),
 			h.A(
-				Icon("fas fa-user-slash"),
+				bulmacomp.Icon("fas fa-user-slash"),
 				x.Trigger("click"), x.Delete(fmt.Sprintf("/action/consult/%s", cslt.Id)), x.Target(fmt.Sprintf("#consultant-%s", cslt.Id)), x.Swap("outerHTML"),
 				x.Confirm(fmt.Sprintf("Supprimer le consultant %s ?", cslt.Name())),
 			),
 		),
 	)
+}
+
+func missionColumnHeader() g.Group {
+	return g.Group{
+		h.Th(g.Text("Statut")),
+		h.Th(g.Text("Client")),
+		h.Th(g.Text("Manager")),
+		h.Th(g.Text("Mission")),
+	}
+}
+
+func missionColumnRow(cslt *consultant.Consultant) g.Group {
+	var missionColumns g.Group
+
+	if cslt.HasActiveMission() {
+		m := cslt.LastMission()
+		missionColumns = g.Group{
+			// Statut
+			h.Td(
+				g.Text("Actif"),
+				h.A(
+					bulmacomp.Icon("fas fa-folder-open"),
+					x.Trigger("click"), x.Get(fmt.Sprintf("/action/consult/%s/updatemissionmodal", cslt.Id)), x.Target(".modal"), x.Swap("outerHTML"),
+				),
+			),
+			// Client
+			h.Td(g.Text(m.Company)),
+			// Manager
+			h.Td(g.Text(m.Manager)),
+			// Mission
+			h.Td(g.Text(m.Title)),
+		}
+	} else {
+		missionColumns = g.Group{
+			// Statut
+			h.Td(
+				g.Text("Inactif"),
+				h.A(
+					bulmacomp.Icon("fas fa-folder-plus"),
+					x.Trigger("click"), x.Get(fmt.Sprintf("/action/consult/%s/addmissionmodal", cslt.Id)), x.Target(".modal"), x.Swap("outerHTML"),
+				),
+			),
+			// Client
+			h.Td(g.Text("-")),
+			// Manager
+			h.Td(g.Text("-")),
+			// Mission
+			h.Td(g.Text("-")),
+		}
+	}
+
+	return missionColumns
 }

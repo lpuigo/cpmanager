@@ -1,4 +1,4 @@
-package comp
+package bulmacomp
 
 import (
 	g "maragu.dev/gomponents"

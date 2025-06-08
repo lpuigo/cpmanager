@@ -2,6 +2,7 @@ package http
 
 import (
 	"github.com/lpuig/cpmanager/http/route"
+	_ "github.com/lpuig/cpmanager/http/session" // Imported for side effects
 	"net/http"
 )
 
@@ -17,26 +18,47 @@ func (s *Server) setupRoutes() {
 		}
 	}
 
+	// Define middleware that adds session to the request context
+	withSession := func(next http.Handler) http.Handler {
+		return s.Manager.Sessions.WithSession(next)
+	}
+
+	// Define middleware that requires authentication
+	withAuth := func(next http.Handler) http.Handler {
+		return s.Manager.Sessions.RequireAuth(next)
+	}
+
+	// Define middleware that combines session and auth
+	withSessionAndAuth := func(next http.Handler) http.Handler {
+		return withSession(withAuth(next))
+	}
+
 	//TODO use compress middleware github.com/klauspost/compress
 	s.mux.Handle("/Assets/", http.StripPrefix("/Assets/", http.FileServer(http.Dir(s.config.DirAsset))))
 
-	s.mux.HandleFunc("GET /{$}", withManager(route.GetMainPage))
+	// Add login/logout routes (public routes)
+	s.mux.HandleFunc("GET /login", withManager(route.GetLoginPage))
+	s.mux.HandleFunc("POST /login", withManager(route.HandleLogin))
+	s.mux.HandleFunc("GET /logout", withManager(route.HandleLogout))
 
-	s.mux.HandleFunc("GET /action/closemodal", withManager(route.GetCloseModal))
+	// Add modal close action (needs session but not auth)
+	s.mux.Handle("GET /action/closemodal", withSession(http.HandlerFunc(withManager(route.GetCloseModal))))
 
-	// Add New Consultant
-	s.mux.HandleFunc("GET /action/consult/addmodal", withManager(route.GetShowNewConsultantModal))
-	s.mux.HandleFunc("POST /action/consult/add", withManager(route.PostAddNewConsultantFromModal))
+	// Main page (protected route)
+	s.mux.Handle("GET /{$}", withSessionAndAuth(http.HandlerFunc(withManager(route.GetMainPage))))
 
-	// Update Consultant
-	s.mux.HandleFunc("GET /action/consult/{id}/updatemodal", withManager(route.GetShowUpdateConsultantModal))
-	s.mux.HandleFunc("POST /action/consult/{id}/update", withManager(route.PostUpdateConsultantFromModal))
+	// Add New Consultant (protected routes)
+	s.mux.Handle("GET /action/consult/addmodal", withSessionAndAuth(http.HandlerFunc(withManager(route.GetShowNewConsultantModal))))
+	s.mux.Handle("POST /action/consult/add", withSessionAndAuth(http.HandlerFunc(withManager(route.PostAddNewConsultantFromModal))))
 
-	// Delete Consultant
-	s.mux.HandleFunc("DELETE /action/consult/{id}", withManager(route.DeleteConsultant))
+	// Update Consultant (protected routes)
+	s.mux.Handle("GET /action/consult/{id}/updatemodal", withSessionAndAuth(http.HandlerFunc(withManager(route.GetShowUpdateConsultantModal))))
+	s.mux.Handle("POST /action/consult/{id}/update", withSessionAndAuth(http.HandlerFunc(withManager(route.PostUpdateConsultantFromModal))))
 
-	// Add NewMission
-	s.mux.HandleFunc("GET /action/consult/{id}/addmissionmodal", withManager(route.GetShowAddMissionModal))
-	s.mux.HandleFunc("POST /action/consult/{id}/addmission", withManager(route.PostAddMissionFromModal))
+	// Delete Consultant (protected route)
+	s.mux.Handle("DELETE /action/consult/{id}", withSessionAndAuth(http.HandlerFunc(withManager(route.DeleteConsultant))))
 
+	// Add NewMission (protected routes)
+	s.mux.Handle("GET /action/consult/{id}/addmissionmodal", withSessionAndAuth(http.HandlerFunc(withManager(route.GetShowAddMissionModal))))
+	s.mux.Handle("POST /action/consult/{id}/addmission", withSessionAndAuth(http.HandlerFunc(withManager(route.PostAddMissionFromModal))))
 }

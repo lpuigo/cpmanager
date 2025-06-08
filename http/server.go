@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/lpuig/cpmanager/config"
-	"github.com/lpuig/cpmanager/http/session"
 	"github.com/lpuig/cpmanager/log"
 	"github.com/lpuig/cpmanager/model/manager"
 	"net/http"
@@ -21,9 +20,8 @@ type Server struct {
 	mux    *http.ServeMux
 	server *http.Server
 
-	Log      log.Logger
-	Sessions *session.Sessions
-	Manager  manager.Manager
+	Log     log.Logger
+	Manager manager.Manager
 }
 
 func NewServer(opts ServerOptions) (*Server, error) {
@@ -51,8 +49,7 @@ func NewServer(opts ServerOptions) (*Server, error) {
 			IdleTimeout:       5 * time.Second,
 		},
 
-		Sessions: session.New(),
-		Manager:  *mgr,
+		Manager: *mgr,
 	}, nil
 
 }

@@ -3,12 +3,15 @@ package manager
 import (
 	"fmt"
 	"github.com/lpuig/cpmanager/config"
+	"github.com/lpuig/cpmanager/http/session"
 	"github.com/lpuig/cpmanager/log"
 	"github.com/lpuig/cpmanager/model/consultant"
 )
 
 type Manager struct {
-	Log         *log.Logger
+	Log      *log.Logger
+	Sessions *session.Sessions
+
 	Consultants *consultant.ConsultantsPersister
 }
 
@@ -19,6 +22,7 @@ func New(l *log.Logger, conf config.Config) (*Manager, error) {
 	}
 	mgr := &Manager{
 		Log:         l,
+		Sessions:    session.NewWithConfig(conf),
 		Consultants: csltCont,
 	}
 

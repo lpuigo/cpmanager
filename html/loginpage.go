@@ -1,4 +1,4 @@
-package route
+package html
 
 import (
 	"github.com/lpuig/cpmanager/html/bulmacomp"
@@ -8,8 +8,8 @@ import (
 	"net/http"
 )
 
-// GetLoginPage renders the login page
-func GetLoginPage(m manager.Manager, w http.ResponseWriter, r *http.Request) {
+// LoginPage renders the login page
+func LoginPage(m manager.Manager, w http.ResponseWriter) {
 	// Create a simple login form
 	loginForm := bulmacomp.Section(
 		h.Div(h.Class("columns is-centered"),
@@ -43,6 +43,4 @@ func GetLoginPage(m manager.Manager, w http.ResponseWriter, r *http.Request) {
 	// Render the login page
 	page := bulmacomp.Page("Login", loginForm)
 	page.Render(w)
-
-	m.Log.InfoContextWithTime(r.Context(), "Get login page")
 }

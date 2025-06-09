@@ -7,7 +7,7 @@ import (
 	"io"
 )
 
-func MainPage(w io.Writer, mgr manager.Manager) {
+func MainPage(mgr manager.Manager, w io.Writer) {
 	mainPage := bulmacomp.Page("Ma main page", comp.ConsultantsBlock(mgr.Consultants))
 	mainPage.Render(w)
 }

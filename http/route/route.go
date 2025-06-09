@@ -14,9 +14,15 @@ type ManagerHandlerFunc func(manager.Manager, http.ResponseWriter, *http.Request
 // SessionAwareHandlerFunc is a function that handles an HTTP request with a manager and a session
 type SessionAwareHandlerFunc func(manager.Manager, *session.Session, http.ResponseWriter, *http.Request)
 
+// Return login page
+func GetLoginPage(m manager.Manager, w http.ResponseWriter, r *http.Request) {
+	html.LoginPage(m, w)
+	m.Log.InfoContextWithTime(r.Context(), "Get login page")
+}
+
 // Return main page
 func GetMainPage(m manager.Manager, w http.ResponseWriter, r *http.Request) {
-	html.MainPage(w, m)
+	html.MainPage(m, w)
 	m.Log.InfoContextWithTime(r.Context(), "Get main page")
 }
 

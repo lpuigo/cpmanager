@@ -16,6 +16,7 @@ type Manager struct {
 
 	Sessions    *session.Sessions
 	Consultants *consultant.ConsultantsPersister
+	Users       *user.UsersPersister
 }
 
 func New(l *log.Logger, conf config.Config) (*Manager, error) {
@@ -23,6 +24,12 @@ func New(l *log.Logger, conf config.Config) (*Manager, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not create consultant persister: %s", err.Error())
 	}
+
+	userCont, err := user.NewUserPersister(conf.DirPersisterUser, l)
+	if err != nil {
+		return nil, fmt.Errorf("could not create user persister: %s", err.Error())
+	}
+
 	mgr := &Manager{
 		Log:      *l,
 		User:     *user.New(),
@@ -30,6 +37,7 @@ func New(l *log.Logger, conf config.Config) (*Manager, error) {
 
 		Sessions:    session.NewWithConfig(conf),
 		Consultants: csltCont,
+		Users:       userCont,
 	}
 
 	return mgr, nil
@@ -41,6 +49,12 @@ func (c *Manager) Init() error {
 	if err != nil {
 		return err
 	}
+
+	err = c.Users.LoadDirectory()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

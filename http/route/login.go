@@ -2,7 +2,6 @@ package route
 
 import (
 	"github.com/lpuig/cpmanager/model/manager"
-	"github.com/lpuig/cpmanager/model/user"
 	"net/http"
 )
 
@@ -21,7 +20,7 @@ func HandleLogin(m manager.Manager, w http.ResponseWriter, r *http.Request) {
 	password := r.Form.Get("password")
 
 	// Validate the credentials
-	user, valid := user.ValidateCredentials(login, password)
+	usr, valid := m.Users.ValidateCredentials(login, password)
 	if !valid {
 		// Invalid credentials, redirect back to login page
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -30,7 +29,7 @@ func HandleLogin(m manager.Manager, w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a new session
-	session, err := m.Sessions.CreateSession(user)
+	session, err := m.Sessions.CreateSession(usr)
 	if err != nil {
 		http.Error(w, "Error creating session", http.StatusInternalServerError)
 		m.Log.ErrorContextWithTime(r.Context(), "failed to create session", "login", login, "errmsg", err.Error())

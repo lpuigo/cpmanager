@@ -32,7 +32,7 @@ type Persister struct {
 	directory string
 	delay     time.Duration
 	records   map[string]Recorder
-	nextId    func() string
+	nextId    func(Recorder) string
 	log       *log.Logger
 
 	mut         sync.RWMutex
@@ -49,7 +49,7 @@ func NewPersister(name, dir string, logger *log.Logger) *Persister {
 		directory: dir,
 		delay:     DefaultPersistDelay,
 		log:       logger,
-		nextId: func() string {
+		nextId: func(Recorder) string {
 			return uuid.NewString()
 		},
 	}
@@ -85,6 +85,11 @@ func (p *Persister) Reinit() {
 // if persistDelay is set to 0, dirty records will be synchronously persisted (writen to disk)
 func (p *Persister) SetPersistDelay(persistDelay time.Duration) {
 	p.delay = persistDelay
+}
+
+// SetNextIdFunc change the default nextId method (random uuid)
+func (p *Persister) SetNextIdFunc(f func(Recorder) string) {
+	p.nextId = f
 }
 
 // NoDelay suppresses receiver persist delay : any record marked as dirt will be persisted synchronously
@@ -195,7 +200,7 @@ func (p *Persister) Add(r Recorder) string {
 	p.mut.Lock()
 	defer p.mut.Unlock()
 
-	id := p.nextId()
+	id := p.nextId(r)
 	r.SetId(id)
 	p.records[id] = r
 	p.markDirty(r)

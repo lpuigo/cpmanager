@@ -5,3 +5,11 @@ type User struct {
 	Login    string
 	Password string
 }
+
+func New() *User {
+	return &User{
+		Name:     "",
+		Login:    "",
+		Password: "",
+	}
+}

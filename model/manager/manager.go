@@ -6,12 +6,14 @@ import (
 	"github.com/lpuig/cpmanager/http/session"
 	"github.com/lpuig/cpmanager/log"
 	"github.com/lpuig/cpmanager/model/consultant"
+	"github.com/lpuig/cpmanager/model/user"
 )
 
 type Manager struct {
-	Log      *log.Logger
-	Sessions *session.Sessions
+	Log  log.Logger
+	User user.User
 
+	Sessions    *session.Sessions
 	Consultants *consultant.ConsultantsPersister
 }
 
@@ -21,7 +23,9 @@ func New(l *log.Logger, conf config.Config) (*Manager, error) {
 		return nil, fmt.Errorf("could not create consultant persister: %s", err.Error())
 	}
 	mgr := &Manager{
-		Log:         l,
+		Log:  *l,
+		User: *user.New(),
+
 		Sessions:    session.NewWithConfig(conf),
 		Consultants: csltCont,
 	}
@@ -36,4 +40,12 @@ func (c *Manager) Init() error {
 		return err
 	}
 	return nil
+}
+
+// Clone returns a clone the reciever, with local Log and empty User attributes
+func (m Manager) Clone() Manager {
+	// Log and User a local instances
+	m.User = *user.New()
+	// others are shared pointers (sessions and persisters)
+	return m
 }

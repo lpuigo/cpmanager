@@ -16,12 +16,26 @@ type SessionAwareHandlerFunc func(manager.Manager, *session.Session, http.Respon
 
 // Return login page
 func GetLoginPage(m manager.Manager, w http.ResponseWriter, r *http.Request) {
+	//check session
+	if m.LoggedIn {
+		// session found, redirect to main page
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		m.Log.InfoContextWithTime(r.Context(), "Redirect to main page")
+		return
+	}
 	html.LoginPage(m, w)
 	m.Log.InfoContextWithTime(r.Context(), "Get login page")
 }
 
 // Return main page
 func GetMainPage(m manager.Manager, w http.ResponseWriter, r *http.Request) {
+	//check session
+	if !m.LoggedIn {
+		// No session found, redirect to login page
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		m.Log.InfoContextWithTime(r.Context(), "Redirect to login page")
+		return
+	}
 	html.MainPage(m, w)
 	m.Log.InfoContextWithTime(r.Context(), "Get main page")
 }

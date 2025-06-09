@@ -16,6 +16,10 @@ type Session struct {
 	ExpiresAt time.Time
 }
 
+func (s Session) IsLoggedIn() bool {
+	return s.UserID != ""
+}
+
 // Sessions manages all active sessions using gorilla/sessions
 type Sessions struct {
 	store  sessions.Store
@@ -107,7 +111,7 @@ func (s *Sessions) SetSessionCookie(w http.ResponseWriter, r *http.Request, sess
 
 	// Store user data in the session
 	gSession.Values["userID"] = session.UserID
-	gSession.Values["userName"] = session.User.Name
+	gSession.Values["userName"] = session.User.FullName
 	gSession.Values["createdAt"] = session.CreatedAt.Unix()
 
 	// Save the session
@@ -168,8 +172,8 @@ func (s *Sessions) GetSessionFromRequest(r *http.Request) (*Session, bool) {
 
 	// Create a user object
 	u := &user.User{
-		Login: userID,
-		Name:  userName,
+		Login:    userID,
+		FullName: userName,
 	}
 
 	// Create a session object
@@ -181,4 +185,23 @@ func (s *Sessions) GetSessionFromRequest(r *http.Request) (*Session, bool) {
 	}
 
 	return session, true
+}
+
+// GetCurrentSessionFromRequest return a session,
+// based on actual session found in request,
+// or fake session with an empty user in not found
+func (s *Sessions) GetCurrentSessionFromRequest(r *http.Request) *Session {
+	session, ok := s.GetSessionFromRequest(r)
+	if !ok {
+		createdAt := time.Now()
+		expiresAt := createdAt
+
+		session = &Session{
+			UserID:    "",
+			User:      user.New(),
+			CreatedAt: createdAt,
+			ExpiresAt: expiresAt,
+		}
+	}
+	return session
 }

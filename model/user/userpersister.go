@@ -6,7 +6,7 @@ func ValidateCredentials(username, password string) (*User, bool) {
 	// For this simple implementation, we'll just hardcode a user
 	if username == "admin" && password == "password" {
 		return &User{
-			Name:     "Administrator",
+			FullName: "Administrator",
 			Login:    "admin",
 			Password: "password", // In a real application, you would never store passwords in plain text
 		}, true

@@ -10,8 +10,9 @@ import (
 )
 
 type Manager struct {
-	Log  log.Logger
-	User user.User
+	Log      log.Logger
+	User     user.User
+	LoggedIn bool
 
 	Sessions    *session.Sessions
 	Consultants *consultant.ConsultantsPersister
@@ -23,8 +24,9 @@ func New(l *log.Logger, conf config.Config) (*Manager, error) {
 		return nil, fmt.Errorf("could not create consultant persister: %s", err.Error())
 	}
 	mgr := &Manager{
-		Log:  *l,
-		User: *user.New(),
+		Log:      *l,
+		User:     *user.New(),
+		LoggedIn: false,
 
 		Sessions:    session.NewWithConfig(conf),
 		Consultants: csltCont,
@@ -44,8 +46,9 @@ func (c *Manager) Init() error {
 
 // Clone returns a clone the reciever, with local Log and empty User attributes
 func (m Manager) Clone() Manager {
-	// Log and User a local instances
+	// Log and User are local instances
 	m.User = *user.New()
+	m.LoggedIn = false
 	// others are shared pointers (sessions and persisters)
 	return m
 }

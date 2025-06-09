@@ -1,14 +1,14 @@
 package user
 
 type User struct {
-	Name     string
+	FullName string
 	Login    string
 	Password string
 }
 
 func New() *User {
 	return &User{
-		Name:     "",
+		FullName: "",
 		Login:    "",
 		Password: "",
 	}

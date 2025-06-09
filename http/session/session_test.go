@@ -12,7 +12,7 @@ func TestSessionManagement(t *testing.T) {
 
 	// Create a test user
 	testUser := &user.User{
-		Name:     "Test User",
+		FullName: "Test User",
 		Login:    "testuser",
 		Password: "password",
 	}

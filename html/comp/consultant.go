@@ -38,7 +38,7 @@ func ConsultantsBlock(cslts *consultant.ConsultantsPersister) g.Node {
 //	return h.Div(
 //		h.ID(fmt.Sprintf("consultant-%s", cslt.Id)),
 //		h.Class("box"),
-//		h.Span(g.Text(cslt.Name())),
+//		h.Span(g.Text(cslt.FullName())),
 //		h.A(Icon("fas fa-user-pen"),
 //			x.Trigger("click"), x.Get(fmt.Sprintf("/action/consult/updatemodal/%s", cslt.Id)), x.Target(".modal"), x.Swap("outerHTML"),
 //		),

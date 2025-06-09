@@ -21,8 +21,13 @@ func New() *Logger {
 	}
 }
 
-// With sets the given attributes in each output operation. Arguments are converted to attributes as if by Logger.Log.
+// With adds the given attributes in each output operation. Arguments are converted to attributes as if by Logger.Log.
 func (l *Logger) With(args ...any) {
+	l.activ = l.activ.With(args...)
+}
+
+// InitWith sets the given attributes in each output operation. Arguments are converted to attributes as if by Logger.Log.
+func (l *Logger) InitWith(args ...any) {
 	l.activ = l.orig.With(args...)
 }
 
@@ -34,11 +39,6 @@ func (l *Logger) ResetAttr() {
 // StartTimer reset receiver' start time
 func (l *Logger) StartTimer() {
 	l.Time = time.Now()
-}
-
-// WithDuration adds duration attr
-func (l *Logger) WithDuration() {
-	l.With("time", time.Since(l.Time))
 }
 
 func (l *Logger) InfoContext(ctx context.Context, msg string, args ...any) {

@@ -8,6 +8,6 @@ import (
 )
 
 func MainPage(mgr manager.Manager, w io.Writer) {
-	mainPage := bulmacomp.Page("Ma main page", comp.ConsultantsBlock(mgr.Consultants))
+	mainPage := bulmacomp.Page("Ma main page", mgr, comp.ConsultantsBlock(mgr.Consultants))
 	mainPage.Render(w)
 }

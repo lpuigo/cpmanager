@@ -41,6 +41,6 @@ func LoginPage(m manager.Manager, w http.ResponseWriter) {
 	)
 
 	// Render the login page
-	page := bulmacomp.Page("Login", loginForm)
+	page := bulmacomp.Page("Login", m, loginForm)
 	page.Render(w)
 }
